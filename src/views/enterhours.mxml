@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:NavigatorContent xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 width="100%" height="100%" 
+		 show="loadData()" 
+		 creationComplete="initCom()">
+
+	<s:layout>
+		<s:VerticalLayout />
+	</s:layout>	
+	
+	<fx:Script>
+		<![CDATA[
+		import mx.collections.ArrayCollection;
+		import mx.controls.dataGridClasses.DataGridColumn;
+		
+		[Bindable] private var projectData:ArrayCollection;	
+		[Bindable] private var todaysHoursData:ArrayCollection;			
+		[Bindable] public var dbconnection:SQLConnection;
+		
+		private var selectData:SQLStatement;
+		private var hourDataStatement:SQLStatement;
+		
+		//used to notice what we are editing
+		private var currentItem:int = 0;
+		
+		private function initCom():void {
+			trace("initCom inside enterhours.mxml");
+			dateworkedfield.selectedDate = new Date();
+			loadData();
+		}
+		
+		private function clear():void {
+			descriptionfield.text = "";
+			projectfield.selectedIndex = -1;
+			hoursworkedfield.value = 0;
+		}
+		
+		private function dateLabel(item:Object,col:DataGridColumn):String {
+			var theDate:Date = new Date(item.date);
+			return myDateFormatter.format(theDate);
+		}
+		
+		private function loadData():void {
+			selectData = new SQLStatement();
+			selectData.sqlConnection = dbconnection;		
+			selectData.text = "select projects.id, projects.name as project, projects.description, clients.name as client, clients.id as clientid from projects, clients where projects.active=1 and projects.clientidfk = clients.id order by projects.name asc";	
+			selectData.addEventListener(SQLEvent.RESULT, resultHandler);
+			selectData.execute();
+			
+			hourDataStatement = new SQLStatement();
+			hourDataStatement.sqlConnection = dbconnection;		
+			hourDataStatement.text = 'select hours.description, hours.hours, hours.date, projects.name as project, clients.name as client from hours, projects, clients where hours.projectidfk = projects.id and projects.clientidfk = clients.id ' + 
+					'and strftime("%d",date) = strftime("%d",date("now")) ' + 
+					'and strftime("%m",date) = strftime("%m",date("now")) ' + 
+					'and strftime("%Y",date) = strftime("%Y",date("now")) ' + 
+					'order by date desc';	
+			hourDataStatement.addEventListener(SQLEvent.RESULT, hoursResultHandler);
+			hourDataStatement.execute();
+			
+		}
+		
+		private function resultHandler(event:SQLEvent):void {
+			var result:SQLResult = selectData.getResult();
+			projectData = new ArrayCollection(result.data);
+			if(projectData.length == 0) mx.controls.Alert.show("You do not have any active projects defined.");
+		}
+		
+		private function hoursResultHandler(event:SQLEvent):void {
+			var result:SQLResult = hourDataStatement.getResult();
+			todaysHoursData = new ArrayCollection(result.data);
+		}
+		
+		
+		private function refreshHandler(event:SQLEvent):void {
+			loadData();
+		}
+		
+		private function projectLabel(item:Object,col:DataGridColumn=null):String {
+			return item.project + " (" + item.client + ")";
+		}
+		
+		private function save():void {
+			var sql:String;
+		
+			var insStmt:SQLStatement = new SQLStatement();
+			insStmt.sqlConnection = dbconnection;
+			sql = "insert into hours(description,projectidfk,clientidfk,hours,date) values(:description,:projectidfk,:clientidfk,:hours,:date)"; 
+			insStmt.parameters[":description"] = descriptionfield.text;
+			insStmt.parameters[":projectidfk"] = projectfield.selectedItem.id;
+			insStmt.parameters[":clientidfk"] = projectfield.selectedItem.clientid;
+		
+			insStmt.parameters[":hours"] = hoursworkedfield.value;
+			insStmt.parameters[":date"] = dateworkedfield.selectedDate;
+		
+			trace('desc is '+descriptionfield.text);
+			insStmt.text = sql;
+			insStmt.addEventListener(SQLEvent.RESULT, refreshHandler);
+			
+			insStmt.execute();
+		
+			projectfield.selectedIndex = -1;
+			descriptionfield.text = "";
+			hoursworkedfield.value = 0;
+		}
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<mx:DateFormatter id="myDateFormatter" formatString="M/D/YY" />
+	</fx:Declarations>
+	
+	<s:RichText text="Enter Hours" styleName="Title" />
+		
+	<s:Form id="editForm" width="100%">
+		<s:FormItem label="Project" required="true">
+			<s:DropDownList id="projectfield" dataProvider="{projectData}" labelFunction="projectLabel" />
+		</s:FormItem>
+							
+		<s:FormItem label="Description" required="true">
+			<s:TextArea id="descriptionfield" />						
+		</s:FormItem>
+	
+		<s:FormItem label="Hours Worked" required="true">
+			<mx:NumericStepper id="hoursworkedfield" minimum="0" maximum="40" stepSize="0.25" />
+		</s:FormItem>
+	
+		<s:FormItem label="Date" required="true">
+			<mx:DateField id="dateworkedfield" />
+		</s:FormItem>
+	
+	</s:Form>
+	
+	<s:RichText text="Today's Hours" styleName="Title" />
+	
+	<s:DataGrid id="todayshours" dataProvider="{todaysHoursData}" width="100%" height="100%" sortableColumns="true" variableRowHeight="true">
+		<s:columns>
+			<s:ArrayList>
+				<s:GridColumn headerText="Date" labelFunction="dateLabel" width="55" />
+				<s:GridColumn headerText="Project" labelFunction="projectLabel" />
+				<s:GridColumn headerText="#" dataField="hours" width="35" />
+				<s:GridColumn headerText="Description" dataField="description" />
+			</s:ArrayList>
+		</s:columns>
+	</s:DataGrid>
+	
+	<mx:ControlBar horizontalAlign="left">
+		<s:Button label="Clear" click="clear()" styleName="cancelButton"/>
+		<s:Button label="Save" click="save()" styleName="saveButton" enabled="{projectData.length > 0}"/>
+	</mx:ControlBar>
+	
+</s:NavigatorContent>

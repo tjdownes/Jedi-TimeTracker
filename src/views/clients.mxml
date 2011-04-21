@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:NavigatorContent  xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					 xmlns:s="library://ns.adobe.com/flex/spark" 
+					 xmlns:mx="library://ns.adobe.com/flex/mx" 
+					 width="100%" height="100%" 
+					 creationComplete="loadData()">
+
+	<s:layout>
+		<s:VerticalLayout />
+	</s:layout>
+	
+	<fx:Script>
+	<![CDATA[
+		import mx.collections.ArrayCollection;
+		
+		[Bindable] private var clientData:ArrayCollection;				
+		[Bindable] public var dbconnection:SQLConnection;
+		
+		private var selectData:SQLStatement;
+		
+		//used to notice what we are editing
+		private var currentItem:int = 0;
+		
+		private function cancel():void {
+			namefield.text = "";
+			descriptionfield.text = "";
+			dgClients.selectedIndex = -1;
+			currentItem = 0;	
+		}
+		
+		private function loadData():void {
+			selectData = new SQLStatement();
+			selectData.sqlConnection = dbconnection;		
+			selectData.text = "select id, name, description from clients order by name asc";
+			selectData.addEventListener(SQLEvent.RESULT, resultHandler);
+			selectData.execute();
+		}
+		
+		private function resultHandler(event:SQLEvent):void {
+		//	clientData = new ArrayCollection();
+			var result:SQLResult = selectData.getResult();
+			/*
+			trace('num of client rows is '+result.data.length);
+			for (var i:int = 0; i < result.data.length; i++) {
+				var row:Object = new Object();
+				row["name"] = result.data[i]["name"];
+				row["description"] = result.data[i]["description"];
+				row["id"] = result.data[i]["id"];
+				clientData.addItem(row);
+			}
+			*/
+			clientData = new ArrayCollection(result.data);
+		}
+		
+		private function showEdit(item:Object):void {
+			//update form fields
+			namefield.text = item.name;
+			descriptionfield.text = item.description;
+			currentItem = item.id;
+		}
+		
+		private function deleteClient(item:Object):void {
+			var id:int = item.id;
+			var delStatement:SQLStatement = new SQLStatement();
+			delStatement.sqlConnection = dbconnection;
+			delStatement.text = "delete from clients where id = :id";
+			delStatement.parameters[":id"] = id;
+			delStatement.addEventListener(SQLEvent.RESULT, refreshHandler);
+			delStatement.execute();
+		}
+		
+		private function refreshHandler(event:SQLEvent):void {
+			loadData();
+		}
+		
+		private function save():void {
+			var sql:String;
+			if(currentItem != 0) {
+				var updStmt:SQLStatement = new SQLStatement();
+				updStmt.sqlConnection = dbconnection;
+				sql = "update clients " +
+				"set name = :name, " +
+				"description = :description "+
+				"where id = :id"; 
+				updStmt.parameters[":name"] = namefield.text;
+				updStmt.parameters[":description"] = descriptionfield.text;
+				updStmt.parameters[":id"] = currentItem;
+				
+				updStmt.text = sql;
+				updStmt.addEventListener(SQLEvent.RESULT, refreshHandler);
+				
+				updStmt.execute();
+				
+			} else {
+		
+				var insStmt:SQLStatement = new SQLStatement();
+				insStmt.sqlConnection = dbconnection;
+				sql = "insert into clients(name,description) values(:name,:description)"; 
+				insStmt.parameters[":name"] = namefield.text;
+				insStmt.parameters[":description"] = descriptionfield.text;
+				
+				insStmt.text = sql;
+				insStmt.addEventListener(SQLEvent.RESULT, refreshHandler);
+				
+				insStmt.execute();
+				
+			}
+		
+			currentItem = 0;
+			dgClients.selectedIndex = -1;
+			namefield.text = "";
+			descriptionfield.text = "";
+			
+		}
+		]]>
+	</fx:Script>
+	
+	<s:RichText text="Clients" styleName="Title" />
+		
+	<s:DataGrid id="dgClients" width="100%" dataProvider="{clientData}" height="100%">
+		<s:columns>
+			<s:ArrayList>
+				<s:GridColumn headerText="Name" dataField="name" />
+				<s:GridColumn headerText="Description" dataField="description" />
+			</s:ArrayList>
+		</s:columns>
+	</s:DataGrid>
+	
+	<s:Form id="editForm">
+		<s:FormItem label="Name" required="true" >
+			<s:TextInput id="namefield" />
+		</s:FormItem>
+							
+		<s:FormItem label="Description" required="true">
+			<s:TextInput id="descriptionfield" />						
+		</s:FormItem>
+	</s:Form>
+	
+	<mx:ControlBar horizontalAlign="left">
+		<s:Button label="Save" click="save()" styleName="saveButton"/>
+		<s:Button label="Cancel" click="cancel()" styleName="cancelButton" />
+		<s:Button label="Edit Client" click="if(dgClients.selectedIndex!=-1) showEdit(dgClients.selectedItem)" enabled="{dgClients.selectedIndex!=-1}"/>
+		<s:Button label="Delete Client" click="if(dgClients.selectedIndex!=-1) deleteClient(dgClients.selectedItem)" enabled="{dgClients.selectedIndex!=-1}" />	
+	</mx:ControlBar>
+	
+</s:NavigatorContent>

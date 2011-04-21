@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication  xmlns:fx="http://ns.adobe.com/mxml/2009" 
+						xmlns:s="library://ns.adobe.com/flex/spark" 
+						xmlns:mx="library://ns.adobe.com/flex/mx"
+						xmlns:views="views.*"
+						creationComplete="init()" 
+						title="Time Tracker" 
+						width="800" height="600">
+	
+	<s:layout>
+		<s:VerticalLayout />
+	</s:layout>
+
+	<fx:Style source="style.css" />	
+	<fx:Style source="global.css" />
+	
+	<fx:Script>
+	<![CDATA[
+		
+		
+		[Bindable] public var conn:SQLConnection = new SQLConnection();
+		public var dbFile:File = File.applicationStorageDirectory.resolvePath("data.db");
+		
+		public function init():void {
+			//trace(dbFile.nativePath);
+			/*
+			conn.addEventListener(SQLEvent.OPEN, openDBHandler);
+			conn.addEventListener(SQLErrorEvent.ERROR, errorDBHandler);		
+			conn.openAsync(dbFile);
+			*/
+			openDBHandler();
+		}	
+		
+		public function openDBHandler():void {
+			trace("db opened, now making new tables");
+			//create a temp sync db connection
+			var setupConn:SQLConnection = new SQLConnection;
+			setupConn.open(dbFile);
+		
+		//TEMP DROP COMMANDS
+		/*
+		var tsql:String = "delete from hours";
+		var tstmt:SQLStatement = new SQLStatement();
+		tstmt.sqlConnection = setupConn;
+		tstmt.text = tsql;
+		tstmt.execute();
+		*/
+		
+			//clients table
+			var sql:String =
+			"CREATE TABLE IF NOT EXISTS clients(" +
+			" id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+			" name TEXT, " +
+			" description TEXT " +
+			");";
+			
+			var createStmt:SQLStatement = new SQLStatement();
+			createStmt.sqlConnection = setupConn;
+			createStmt.text = sql;
+			createStmt.execute();
+		
+			//projects table
+			sql = "CREATE TABLE IF NOT EXISTS projects(" +
+			" id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+			" name TEXT, " +
+			" description TEXT, " +
+			" clientidfk INTEGER, " +
+			" active INTEGER " +
+			");";
+		
+			createStmt = new SQLStatement();
+			createStmt.sqlConnection = setupConn;
+			createStmt.text = sql;
+			createStmt.execute();
+		
+			//hours table
+			sql = "CREATE TABLE IF NOT EXISTS hours(" +
+			" id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+			" description TEXT, " +
+			" clientidfk INTEGER, " +
+			" projectidfk INTEGER, " +
+			" hours NUMERIC, " +
+			" date DATE " +
+			");";
+		
+			createStmt = new SQLStatement();
+			createStmt.sqlConnection = setupConn;
+			createStmt.text = sql;
+			createStmt.execute();
+			
+			setupConn.close();
+	
+			conn.addEventListener(SQLEvent.OPEN, dbReady);
+			conn.addEventListener(SQLErrorEvent.ERROR, errorDBHandler);		
+			conn.openAsync(dbFile);
+		}
+		
+		public function dbReady(event:SQLEvent):void {
+			trace("all done, let's boogie");
+			this.currentState = 'Main';
+		}
+		
+		public function errorDBHandler(event:SQLErrorEvent):void {
+			trace("Error message:", event.error.message);
+			trace("Details:", event.error.details);
+		}
+	
+	]]>
+	</fx:Script>
+
+	<s:states>
+		<s:State name="Login" />
+		<s:State name="Main" />
+	</s:states>
+	
+	<views:loading id="loadingView" includeIn="Login"/>
+	
+	<mx:ApplicationControlBar id="applicationcontrolbar1" 
+							  width="100%" height="29" 
+							  paddingLeft="5" paddingRight="0" paddingTop="0" paddingBottom="0" 
+							  verticalAlign="bottom" 
+							  includeIn="Main">
+		<s:TabBar dataProvider="{vs}" height="23" />
+	</mx:ApplicationControlBar>
+	
+	<mx:ViewStack id="vs" 
+				  width="100%" height="100%" 
+				  backgroundColor="#DBDADA"  
+				  creationPolicy="all"
+				  includeIn="Main">
+		<views:enterhours id="enterhoursView" label="Enter Hours" dbconnection="{conn}" />	
+		<views:clients id="clientsView" label="Clients" dbconnection="{conn}" />
+		<views:projects id="projectsView" label="Projects" dbconnection="{conn}"/>
+		<views:log id="logView" label="Hours Log" dbconnection="{conn}"/>
+		<views:stats id="statView" label="Stats" dbconnection="{conn}"/>
+	</mx:ViewStack>
+	
+</s:WindowedApplication>

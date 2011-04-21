@@ -1,0 +1,189 @@
+@namespace mx "library://ns.adobe.com/flex/mx";
+@namespace s "library://ns.adobe.com/flex/spark";
+
+s|Application {
+   backgroundColor: #323232;
+   backgroundGradientColors: #818181, #9F9F9F;
+	backgroundGradientAlphas: 1.0, 1.0;
+	borderStyle: solid;
+}
+
+mx|ApplicationControlBar {
+	fillAlphas: 1.0, 1.0;
+	fillColors: #E9E9E9, #D0D0D0;
+	cornerRadius: 0;
+}
+
+.glassPods {
+    borderStyle: applicationControlBar;
+    fillColors: #FFFFFF, #FFFFFF;
+    fillAlphas: 0, 0.25;
+    highlightAlphas: 0, 0;
+    backgroundColor: #ffffff;
+    backgroundAlpha: .2;
+    borderThickness: 0;
+    dropShadowEnabled: true;
+    cornerRadius: 8;
+    paddingRight: 0;
+    paddingLeft: 0;
+    paddingTop: 0;
+    paddingBottom: 0;
+    horizontalScrollBarStyleName: fseVerticalScrollBar;
+    verticalScrollBarStyleName: fseVerticalScrollBar;
+}
+
+.glassLabels {
+    color: #FFFFFF;
+    fontSize: 12;
+    fontWeight: bold;
+    paddingLeft: 0;
+    paddingTop: 0;
+    fontFamily: Myriad;
+}
+
+s|TabBar {
+	tabStyleName: "myTabs";	
+}
+
+.myTabs {
+   cornerRadius: 5;
+   highlightAlphas: 0.46, 0.32;
+   fillAlphas: 0.0, 0.8, 0.31, 0.31;
+   backgroundAlpha: 1;
+   themeColor: #898989;
+   fontSize: 11;
+	fillColors: #B8B8B8, #B8B8B8;
+  }
+
+.tabContainer {
+	paddingTop: 10;
+	paddingRight: 10;
+	paddingBottom: 10;
+	paddingLeft: 10;	
+}
+
+.mySelectedTabs {
+   fontSize: 12;
+   fontWeight: bold;
+}
+
+s|Panel {
+   borderColor: #dbdada;
+   borderAlpha: 1;
+   borderThicknessLeft: 10;
+   borderThicknessTop: 0;
+   borderThicknessBottom: 10;
+   borderThicknessRight: 10;
+   cornerRadius: 0;
+   /*headerHeight: 25;*/
+   headerHeight: 0;
+   highlightAlphas: 0.62, 0.19;
+   headerColors: #8a8a8a, #c6c5c5;
+   footerColors: #e3e1e1, #cbcaca;
+   backgroundColor: #dbdada;
+   dropShadowEnabled: false;
+   titleStyleName: "mypanelTitle";
+}
+
+mx|ControlBar {
+
+}
+
+/*LinkBar {
+   borderStyle: none;
+   horizontalGap: 10;
+   separatorWidth: 0;
+   cornerRadius: 11;
+   backgroundAlpha: 0;
+   rollOverColor: #cbcbcb;
+   selectionColor: #d2d5d5;
+   color: #000000;
+   textSelectedColor: #000000;
+   disabledColor: #0425a8;
+   fontSize: 12;
+   fontWeight: bold;
+   dropShadowEnabled: false;
+}
+
+LinkButton {
+	fontSize: 12;	
+}*/
+
+s|Button {
+   cornerRadius: 11;
+   paddingTop: 2;
+   paddingBottom: 2;
+   fillAlphas: 0.33, 0.19, 0.82, 0.48;
+   borderColor: #f7fafa;
+   themeColor: #717171;
+   fontFamily: Verdana;
+   fontWeight: bold;
+	fontSize: 10;
+	paddingLeft: 10;	
+}
+
+.saveButton {
+	upIcon: Embed(source="assets/disk_blue.png");
+	overIcon: Embed(source="assets/disk_blue.png");
+	downIcon: Embed(source="assets/disk_blue.png");
+}
+
+.newButton {
+	upIcon: Embed(source="assets/document_new.png");
+	overIcon: Embed(source="assets/document_new.png");
+	downIcon: Embed(source="assets/document_new.png");
+}
+
+.cancelButton {
+	upIcon: Embed(source="assets/delete.png");
+	overIcon: Embed(source="assets/delete.png");
+	downIcon: Embed(source="assets/delete.png");
+}
+
+.loadButton {
+	upIcon: Embed(source="assets/folders.png");
+	overIcon: Embed(source="assets/folders.png");
+	downIcon: Embed(source="assets/folders.png");
+}
+
+.bookmarksButton {
+	upIcon: Embed(source="assets/bookmark.png");
+	overIcon: Embed(source="assets/bookmark.png");
+	downIcon: Embed(source="assets/bookmark.png");
+}
+
+@font-face {
+    src: url("/assets/MyriadWebPro.ttf") ;
+    fontFamily: Myriad;
+    unicodeRange:
+           U+0041-U+005A, /* Upper-Case [A..Z] */
+           U+0061-U+007A, /* Lower-Case a-z */
+           U+0030-U+0039, /* Numbers [0..9] */
+           U+002E-U+002E; /* Period [.] */
+}
+
+@font-face {
+    src: url("/assets/MyriadWebPro-Bold.ttf") ;
+    fontFamily: Myriad;
+    fontWeight: bold;
+    unicodeRange:
+           U+0041-U+005A, /* Upper-Case [A..Z] */
+           U+0061-U+007A, /* Lower-Case a-z */
+           U+0030-U+0039, /* Numbers [0..9] */
+           U+002E-U+002E; /* Period [.] */
+}
+@font-face
+{
+	fontFamily: Verdana;
+	fontWeight: bold;
+	fontStyle: normal;
+	src: local("Verdana");
+	embedAsCFF: false;
+}
+@font-face
+{
+	fontFamily: MyriadWebPro-Bold;
+	fontWeight: bold;
+	fontStyle: normal;
+	src: url("assets/MyriadWebPro-Bold.ttf");
+}
