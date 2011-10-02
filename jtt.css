@@ -15,7 +15,7 @@ body
 h1 { font-size: 3.8em; color: #36C; margin-bottom: 3px; }
 h1 .small { font-size: 0.4em; }
 h1 a { text-decoration: none }
-h2 { font-size: 1.5em; color: #36C; }
+h2 { font-size: 1.5em; color: #900; }
 h3 { text-align: center; color: #36C; }
 a { color: #36C; }
 .description { font-size: .9em; margin-bottom: 19px; margin-top: 19px; font-style: italic;}
