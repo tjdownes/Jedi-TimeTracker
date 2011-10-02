@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:NavigatorContent  xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					 xmlns:s="library://ns.adobe.com/flex/spark" 
+					 xmlns:mx="library://ns.adobe.com/flex/mx" 
+					 width="100%" height="100%" 
+					 enabled="{!model.isDisabled}" 
+					 show="model.checkClients();">
+	<s:layout>
+		<s:VerticalLayout paddingBottom="8" paddingLeft="8" paddingRight="8" paddingTop="8"  />
+	</s:layout>
+
+	<fx:Script>
+	<![CDATA[
+		import com.norcalflash.jeditimetracker.model.presentation.ProjectsPM;
+		import com.norcalflash.jeditimetracker.model.to.Client;
+		import com.norcalflash.jeditimetracker.model.to.Project;
+		
+		import spark.events.GridEvent;
+		import spark.events.IndexChangeEvent;
+		
+		[Bindable]
+		[Inject]
+		public var model:ProjectsPM;
+		
+		protected function dgProjects_gridClickHandler(event:GridEvent):void
+		{
+			model.currentProject = dgProjects.selectedItem as Project;
+			model.validateEntry();
+		}
+		
+		protected function activeFilter_changeHandler(event:Event):void
+		{
+			model.showOnlyActiveProjects = activeFilter.selected;
+			model.filterProjects();
+		}
+		
+		protected function clientfield_changeHandler(event:IndexChangeEvent):void
+		{
+			model.currentProject.client = clientfield.selectedItem as Client;
+			model.validateEntry();
+		}
+	]]>
+	</fx:Script>
+	
+	<s:RichText text="Projects" styleName="Title" />
+		
+	<s:HGroup width="100%" verticalAlign="middle">
+		<s:Label text="Client: " />
+		<s:DropDownList id="clientFilter" 
+						prompt="Choose Client"
+						width="275"
+						dataProvider="{model.clients}" 
+						selectedItem="@{model.currentClient}"
+						labelField="name"
+						change="model.getProjectsByClient()" />
+		<s:Label text="Active Only: " />
+		<s:CheckBox id="activeFilter"
+					change="activeFilter_changeHandler(event)" />
+	</s:HGroup>
+	
+	<s:DataGrid id="dgProjects" 
+				width="100%"  height="100%"
+				dataProvider="{model.currentProjects}" 
+				gridClick="dgProjects_gridClickHandler(event)">
+		<s:columns>
+			<s:ArrayList>
+				<s:GridColumn headerText="Name" dataField="name" />
+				<s:GridColumn headerText="Description" dataField="description" />
+				<s:GridColumn headerText="Client" dataField="client.name" />
+			</s:ArrayList>
+		</s:columns>
+	</s:DataGrid>
+	
+	<s:Form id="editForm" width="100%">
+		<s:FormItem label="Name" required="true" >
+			<s:TextInput id="namefield" 
+						 text="@{model.currentProject.name}"
+						 change="model.validateEntry()"
+						 width="275" />
+		</s:FormItem>
+							
+		<s:FormItem label="Description" required="true">
+			<s:TextInput id="descriptionfield"
+						 text="@{model.currentProject.description}" 
+						 change="model.validateEntry()"
+						 width="275" />						
+		</s:FormItem>
+	
+		<s:FormItem label="Client" required="true">
+			<s:DropDownList id="clientfield" 
+							width="275"
+							dataProvider="{model.clients}" 
+							selectedItem="{model.selectedProjectClient}"
+							labelField="name" 
+							change="clientfield_changeHandler(event)" />
+		</s:FormItem>
+	
+		<s:FormItem label="Active">
+			<s:CheckBox id="activefield" 
+						selected="@{model.currentProject.projectActive}"
+						change="model.validateEntry()" />
+		</s:FormItem>
+	</s:Form>
+	
+	<s:HGroup horizontalAlign="right" width="100%">
+		<s:Button label="Save" 
+				  click="model.saveProject()"  
+				  styleName="saveButton"
+				  enabled="{model.isEntryValid}" />
+		<s:Button label="Cancel" 
+				  click="model.resetCurrentProject()" 
+				  styleName="cancelButton"  />
+		<s:Button label="Delete" 
+				  click="model.deleteProject()" 
+				  styleName="deleteButton" 
+				  enabled="{model.currentProject != null &amp;&amp; model.currentProject.id != 0}" />	
+	</s:HGroup>
+
+</s:NavigatorContent>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<swiz:BeanProvider xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:swiz="http://swiz.swizframework.org">
+	<fx:Script>
+		<![CDATA[
+			import com.norcalflash.jeditimetracker.commands.DeleteClientCommand;
+			import com.norcalflash.jeditimetracker.commands.DeleteProjectCommand;
+			import com.norcalflash.jeditimetracker.commands.DeleteTimeEntryCommand;
+			import com.norcalflash.jeditimetracker.commands.InitializeApplicationCommand;
+			import com.norcalflash.jeditimetracker.commands.LoadActiveProjectsByClientCommand;
+			import com.norcalflash.jeditimetracker.commands.LoadClientsCommand;
+			import com.norcalflash.jeditimetracker.commands.LoadProjectsByClientCommand;
+			import com.norcalflash.jeditimetracker.commands.LoadReportsByDateRangeCommand;
+			import com.norcalflash.jeditimetracker.commands.LoadTimeEntriesByDateRangeCommand;
+			import com.norcalflash.jeditimetracker.commands.SaveClientCommand;
+			import com.norcalflash.jeditimetracker.commands.SaveProjectCommand;
+			import com.norcalflash.jeditimetracker.commands.SaveTimeEntryCommand;
+		]]>
+	</fx:Script>
+	
+	<config:JTTCommandMap xmlns:config="com.norcalflash.jeditimetracker.config.*" />
+	
+	<swiz:Prototype type="{DeleteClientCommand}" />
+	<swiz:Prototype type="{SaveClientCommand}" />
+	<swiz:Prototype type="{LoadClientsCommand}" />
+	
+	<swiz:Prototype type="{DeleteProjectCommand}" />
+	<swiz:Prototype type="{SaveProjectCommand}" />
+	<swiz:Prototype type="{LoadProjectsByClientCommand}" />
+	
+	<swiz:Prototype type="{LoadActiveProjectsByClientCommand}" />
+	<swiz:Prototype type="{LoadTimeEntriesByDateRangeCommand}" />
+	<swiz:Prototype type="{SaveTimeEntryCommand}" />
+	<swiz:Prototype type="{DeleteTimeEntryCommand}" />
+	
+	<swiz:Prototype type="{LoadReportsByDateRangeCommand}" />
+	
+	<swiz:Prototype type="{InitializeApplicationCommand}" />
+	
+</swiz:BeanProvider>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:NavigatorContent  xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					 xmlns:s="library://ns.adobe.com/flex/spark" 
+					 xmlns:mx="library://ns.adobe.com/flex/mx" 
+					 width="100%" height="100%">
+
+	<s:layout>
+		<s:VerticalLayout paddingBottom="8" paddingLeft="8" paddingRight="8" paddingTop="8" />
+	</s:layout>
+	
+	<fx:Script>
+	<![CDATA[
+		import com.norcalflash.jeditimetracker.model.presentation.ClientsPM;
+		import com.norcalflash.jeditimetracker.model.to.Client;
+		
+		import spark.events.GridEvent;
+		import spark.events.TextOperationEvent;
+		
+		[Bindable]
+		[Inject]
+		public var model:ClientsPM;
+		
+		protected function dgClients_gridClickHandler(event:GridEvent):void
+		{
+			model.currentClient = dgClients.selectedItem as Client;
+			model.validateEntry();
+		}
+	]]>
+	</fx:Script>
+	
+	<s:RichText text="Clients" styleName="Title" />
+		
+	<s:DataGrid id="dgClients" 
+				width="100%"  height="100%"
+				dataProvider="{model.clients}" 
+				gridClick="dgClients_gridClickHandler(event)">
+		<s:columns>
+			<s:ArrayList>
+				<s:GridColumn headerText="Name" dataField="name" />
+				<s:GridColumn headerText="Description" dataField="description" />
+			</s:ArrayList>
+		</s:columns>
+	</s:DataGrid>
+	
+	<s:Form id="editForm" width="100%">
+		<s:FormItem label="Name" required="true" >
+			<s:TextInput id="namefield" 
+						 width="275" 
+						 focusIn="model.verifyCurrentClient()"
+						 text="@{model.currentClient.name}"
+						 change="model.validateEntry()"  />
+		</s:FormItem>
+							
+		<s:FormItem label="Description" required="true">
+			<s:TextInput id="descriptionfield" 
+						 width="275" 
+						 focusIn="model.verifyCurrentClient()"
+	 					 text="@{model.currentClient.description}" 
+						 change="model.validateEntry()" />						
+		</s:FormItem>
+	</s:Form>
+	
+	<s:HGroup horizontalAlign="right" width="100%">
+		<s:Button label="Save" 
+				  click="model.saveCurrentClient()"
+				  enabled="{model.isEntryValid}"
+				  styleName="saveButton"/>
+		<s:Button label="Cancel" 
+				  click="model.resetCurrentClient()" 
+				  styleName="cancelButton" />
+		<s:Button label="Delete" 
+				  click="model.deleteCurrentClient()"
+				  styleName="deleteButton"  
+				  enabled="{model.currentClient != null &amp;&amp; model.currentClient.id != 0}" />	
+	</s:HGroup>
+	
+</s:NavigatorContent>

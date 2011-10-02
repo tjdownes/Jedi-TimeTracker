@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:NavigatorContent xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 width="100%" height="100%"
+		 enabled="{!model.isDisabled}" 
+		 show="model.checkClients();">
+
+	<s:layout>
+		<s:VerticalLayout paddingBottom="8" paddingLeft="8" paddingRight="8" paddingTop="8" />
+	</s:layout>	
+	
+	<fx:Script>
+	<![CDATA[
+		import com.norcalflash.jeditimetracker.model.presentation.TimeEntryPM;
+		import com.norcalflash.jeditimetracker.model.to.Client;
+		import com.norcalflash.jeditimetracker.model.to.Project;
+		import com.norcalflash.jeditimetracker.model.to.TimeEntry;
+		
+		import flash.globalization.DateTimeStyle;
+		
+		import mx.collections.ArrayCollection;
+		
+		import spark.events.GridEvent;
+		import spark.events.IndexChangeEvent;
+
+		[Bindable]
+		[Inject]
+		public var model:TimeEntryPM;
+		
+		[PostConstruct]
+		public function onPostConstruct():void
+		{
+			model.getTimeEntries();
+		}
+		
+		protected function clientfield_changeHandler(event:IndexChangeEvent):void
+		{
+			model.currentClient = clientfield.selectedItem as Client;
+			model.validateTimeEntry();
+		}
+		
+		protected function projectfield_changeHandler(event:IndexChangeEvent):void
+		{
+			model.currentTimeEntry.project = projectfield.selectedItem as Project;
+			model.validateTimeEntry();
+		}
+		
+		protected  function dateLabel(item:Object,col:GridColumn):String 
+		{
+			return df.format(item.date);
+		}
+		
+		protected function todayshours_gridClickHandler(event:GridEvent):void
+		{
+			model.currentTimeEntry = todayshours.selectedItem as TimeEntry;
+			model.validateTimeEntry();
+		}
+	]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:DateTimeFormatter id="df" timeStyle="none" dateStyle="{DateTimeStyle.SHORT}" />
+	</fx:Declarations>
+	
+	<s:Group width="100%">
+		<s:RichText text="Hours" 
+					styleName="Title" 
+					height="100%" 
+					verticalAlign="middle" />
+		<s:RichText text="(displayed total: {model.sumOfHours})" 
+					fontSize="10" 
+					left="65" 
+					height="100%" 
+					verticalAlign="middle" />
+		<s:Form right="0">
+			
+			<s:layout>
+				<s:HorizontalLayout verticalAlign="middle" />
+			</s:layout>
+			
+			<s:FormItem label="Start Date" 
+						skinClass="com.norcalflash.jeditimetracker.skins.form.SelfExpandingHorizontalFormItemSkin">
+				<mx:DateField id="startDate" selectedDate="@{model.startDate}" />
+			</s:FormItem>
+			<s:FormItem label="End Date"
+						skinClass="com.norcalflash.jeditimetracker.skins.form.SelfExpandingHorizontalFormItemSkin">
+				<mx:DateField id="endDate" selectedDate="@{model.endDate}" />
+				<s:Button label="search" 
+						  styleName="loadButton" 
+						  click="model.getTimeEntries()" />
+			</s:FormItem>
+		</s:Form>
+	</s:Group>
+	
+	<s:DataGrid id="todayshours" 
+				dataProvider="{model.todaysHours}" 
+				width="100%" height="100%" 
+				sortableColumns="true" 
+				variableRowHeight="true" 
+				gridClick="todayshours_gridClickHandler(event)">
+		<s:columns>
+			<s:ArrayList>
+				<s:GridColumn headerText="Date" labelFunction="dateLabel" width="75" />
+				<s:GridColumn headerText="Project" dataField="project.name" />
+				<s:GridColumn headerText="#" dataField="hours" width="50" />
+				<s:GridColumn headerText="Description" dataField="description" />
+			</s:ArrayList>
+		</s:columns>
+	</s:DataGrid>
+		
+	<s:RichText text="Enter Hours" styleName="Title" />
+	
+	<s:Form id="editForm" width="100%">
+		
+		<s:FormItem label="Client" required="true">
+			<s:DropDownList id="clientfield" 
+							prompt="Choose Client"
+							width="275"
+							dataProvider="{model.clients}" 
+							selectedItem="@{model.currentClient}"
+							change="clientfield_changeHandler(event)"
+							labelField="name" />
+		</s:FormItem>
+		
+		<s:FormItem label="Project" required="true">
+			<s:DropDownList id="projectfield" 
+							prompt="Choose Project"
+							width="275"
+							dataProvider="{new ArrayCollection(clientfield.selectedItem.projects)}"
+							selectedItem="@{model.currentProject}"
+							change="projectfield_changeHandler(event)"
+							labelField="name" 
+							enabled="{model.currentClient.id != 0}" />
+		</s:FormItem>
+							
+		<s:FormItem label="Description" required="true">
+			<s:TextArea id="descriptionfield" 
+						width="275" height="125"
+						text="@{model.currentTimeEntry.description}" 
+						change="model.validateTimeEntry()" />						
+		</s:FormItem>
+	
+		<s:FormItem label="Hours Worked" required="true">
+			<s:NumericStepper id="hoursworkedfield" 
+							  value="@{model.currentTimeEntry.hours}" 
+							  minimum="0" maximum="40" 
+							  stepSize="0.25" 
+							  change="model.validateTimeEntry()" />
+		</s:FormItem>
+	
+		<s:FormItem label="Date" required="true">
+			<mx:DateField id="dateworkedfield" 
+						  selectedDate="@{model.currentTimeEntry.date}" 
+						  change="model.validateTimeEntry()" />
+		</s:FormItem>
+	
+	</s:Form>
+	
+	<s:HGroup horizontalAlign="right" width="100%">
+		<s:Button label="Save" click="model.saveHours()" 
+				  styleName="saveButton" 
+				  enabled="{model.isEntryValid}"/>
+		<s:Button label="Cancel" click="model.resetTimeEntry()" 
+				  styleName="cancelButton" />
+		<s:Button label="Delete" click="model.deleteHours()" 
+				  styleName="deleteButton" 
+				  enabled="{model.currentTimeEntry.id != 0}"/>
+	</s:HGroup>
+	
+</s:NavigatorContent>

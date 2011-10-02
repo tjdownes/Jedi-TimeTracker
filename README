@@ -1,5 +1,19 @@
 Jedi TimeTracker - Copyright 2011 TJ Downes
 
+TIMETRACKER USERS - PAY ATTENTION. This message is important to you. You may lose data if you fail to heed this message.
+Jedi TimeTracker is v2.1 of Ray Camden's TimeTracker application. If you wish to use this instead of TimeTracker, you can 
+import your data. Please follow the documentation on the GitHub Wiki.
+
+v2.1 is a near total rewrite of TimeTracker. JTT now uses Swiz, and the presentation model and command patterns. 
+It also leverages airORM, although this is a fork of the original library with a number of fixes. My fork can 
+be found at 
+
+		https://github.com/tjdownes/airorm. 
+
+All support is provided through the project GitHub site at 
+
+		https://github.com/tjdownes/Jedi-TimeTracker.
+
 Credit for the original code goes to Raymond Camden who initially authored the TimeTracker
 application. This application was converted using Ray's code, which can be found at
 

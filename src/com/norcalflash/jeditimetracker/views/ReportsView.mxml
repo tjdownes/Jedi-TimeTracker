@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:NavigatorContent  xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					 xmlns:s="library://ns.adobe.com/flex/spark" 
+					 xmlns:mx="library://ns.adobe.com/flex/mx" 
+					 width="100%" height="100%"
+					 enabled="{!model.isDisabled}" 
+					 show="model.checkClients();">
+	
+	<s:layout>
+		<s:VerticalLayout paddingBottom="8" paddingLeft="8" paddingRight="8" paddingTop="8" />
+	</s:layout>
+
+	<fx:Script>
+	<![CDATA[
+		import com.norcalflash.jeditimetracker.model.presentation.ReportsPM;
+		import com.norcalflash.jeditimetracker.model.to.Client;
+		import com.norcalflash.jeditimetracker.model.to.Project;
+		
+		import mx.controls.Alert;
+		
+		import spark.events.IndexChangeEvent;
+		
+		[Bindable]
+		[Inject]
+		public var model:ReportsPM;
+		
+		private function projectLabelForChart(item:Object,field:String,index:Number,percentValue:Number):String 
+		{
+			if(item.client == null) 
+				return item.project;
+			
+			return item.project + " (" + item.client + ")";
+		}
+		
+		protected function clientfield_changeHandler(event:IndexChangeEvent):void
+		{
+			model.currentClient = clientfield.selectedItem as Client;
+			model.getProjectsByClient();
+		}
+		
+		protected function search_clickHandler(event:MouseEvent):void
+		{
+			if(startDate.selectedDate <= endDate.selectedDate)
+			{
+				model.getTimeEntries();
+			}
+			else
+			{
+				Alert.show("Start Date must be equal to or less than End  Date");
+			}
+		}
+		
+		protected function projectfield_changeHandler(event:IndexChangeEvent):void
+		{
+			model.currentProject = projectfield.selectedItem as Project;
+			callLater(model.setFilters);
+		}
+	]]>
+	</fx:Script>
+
+	<s:RichText text="Reports" styleName="Title" />
+	
+	<s:Form>
+		
+		<s:layout>
+			<s:HorizontalLayout verticalAlign="middle" />
+		</s:layout>
+		
+		<s:FormItem label="Search" 
+					skinClass="com.norcalflash.jeditimetracker.skins.form.EmptyHorizontalFormItemSkin" />
+		
+		<s:FormItem label="Start Date">
+			<mx:DateField id="startDate" selectedDate="@{model.startDate}" />
+		</s:FormItem>
+		<s:FormItem label="End Date">
+			<mx:DateField id="endDate" selectedDate="@{model.endDate}" />
+			<s:Button label="search" 
+					  click="search_clickHandler(event)" 
+					  styleName="loadButton" />
+		</s:FormItem>
+			
+	</s:Form>
+	
+	<s:Form>
+		<s:layout>
+			<s:HorizontalLayout verticalAlign="middle" />
+		</s:layout>
+		
+		<s:FormItem label="Filter"
+					skinClass="com.norcalflash.jeditimetracker.skins.form.EmptyHorizontalFormItemSkin" />
+		
+		<s:FormItem label="By Client">
+			<s:DropDownList id="clientfield" 
+							prompt="Choose Client"
+							width="175"
+							dataProvider="{model.clients}" 
+							labelField="name" 
+							selectedItem="{model.currentClient}"
+							change="clientfield_changeHandler(event)"  />
+		</s:FormItem>
+		<s:FormItem label="By Project">
+			<s:DropDownList id="projectfield" 
+							width="175" 
+							prompt="Choose Project"
+							dataProvider="{model.currentProjects}" 
+							selectedItem="{model.currentProject}"
+							labelField="name" 
+							change="projectfield_changeHandler(event)" />
+			<s:Button label="reset" click="model.resetReport()"
+					  styleName="cancelButton"  />
+		</s:FormItem>
+	</s:Form>
+
+	<mx:PieChart id="hourreport" 
+				 width="100%" height="100%" 
+				 dataProvider="{model.timeEntries}" 
+				 showDataTips="true">
+		<mx:series>
+			<mx:PieSeries nameField="project" 
+						  field="total" 
+						  labelPosition="callout"
+						  labelFunction="projectLabelForChart"/>
+		</mx:series>
+	</mx:PieChart>
+
+	<mx:Legend dataProvider="{hourreport}"/>
+
+</s:NavigatorContent>

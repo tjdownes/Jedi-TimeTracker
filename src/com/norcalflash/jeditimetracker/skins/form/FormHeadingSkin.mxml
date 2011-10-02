@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+        xmlns:s="library://ns.adobe.com/flex/spark" 
+        xmlns:mx="library://ns.adobe.com/flex/mx"
+        xmlns:fb="http://ns.adobe.com/flashbuilder/2009"
+        alpha.disabled=".5">
+    
+    <fx:Metadata>
+        <![CDATA[ 
+        /** 
+        * @copy spark.skins.spark.ApplicationSkin#hostComponent
+        */
+        [HostComponent("spark.components.FormHeading")]
+        ]]>
+    </fx:Metadata> 
+    
+    <s:states>
+        <s:State name="normal" />
+        <s:State name="disabled" />	
+    </s:states>
+    
+    <s:layout>
+        <s:FormItemLayout>
+            <s:constraintColumns>
+                <!--<s:ConstraintColumn id="sequenceCol" />-->
+                <s:ConstraintColumn id="labelCol" />
+                <s:ConstraintColumn id="contentCol"/>
+               <!-- <s:ConstraintColumn id="helpCol"/>-->
+            </s:constraintColumns>         
+            <s:constraintRows>
+				<s:ConstraintRow id="row1" />
+				<s:ConstraintRow id="row2" />
+            </s:constraintRows>  
+        </s:FormItemLayout>
+    </s:layout>
+            
+    <s:RichText id="labelDisplay"
+             left="0" top="5" bottom="row1:5" width="400" height="100%" lineBreak="toFit" />
+
+</s:Skin>

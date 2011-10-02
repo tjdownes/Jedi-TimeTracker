@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx" 
+		  xmlns:views="com.norcalflash.jeditimetracker.views.*"
+		  currentState="{model.viewState}" 
+		  gap="0">
+	
+	<fx:Script>
+		<![CDATA[
+			import com.norcalflash.jeditimetracker.model.presentation.MainViewPM;
+			
+			[Bindable]
+			[Inject]
+			public var model:MainViewPM;
+			
+			[PostConstruct]
+			public function onPostConstruct():void
+			{
+				model.initializeApp();
+				model.getClients();
+				model.checkClients();
+			}
+		]]>
+	</fx:Script>
+	
+	<s:states>
+		<s:State name="login" />
+		<s:State name="main" />
+	</s:states>
+	
+	<views:LoadingView id="loadingView" includeIn="login"/>
+
+	<s:TabBar dataProvider="{vs}" height="23" width="100%" includeIn="main" />
+	
+	<mx:ViewStack id="vs" 
+				  width="100%" height="100%" 
+				  backgroundColor="#DBDADA"  
+				  creationPolicy="all"
+				  includeIn="main" 
+				  selectedIndex="{model.selectedViewIndex}">
+		<views:TimeEntryView id="timeEntryView" label="Timecards" />
+		<views:ClientView id="clientsView" label="Clients" />
+		<views:ProjectView id="projectsView" label="Projects" />
+		<views:ReportsView id="reportsView" label="Reports" />
+	</mx:ViewStack>
+</s:VGroup>
