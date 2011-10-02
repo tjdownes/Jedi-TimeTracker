@@ -37,6 +37,7 @@
 		protected function clientfield_changeHandler(event:IndexChangeEvent):void
 		{
 			model.currentProject.client = clientfield.selectedItem as Client;
+			model.selectedProjectClient = clientfield.selectedItem as Client;
 			model.validateEntry();
 		}
 	]]>

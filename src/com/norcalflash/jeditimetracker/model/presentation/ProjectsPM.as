@@ -63,6 +63,10 @@ package com.norcalflash.jeditimetracker.model.presentation
 				isDisabled = true;
 				Alert.show("You need to add clients before you can use this module");
 			}
+			else 
+			{
+				isDisabled = false;
+			}
 		}
 		
 		public function setSelectedProjectClient():void
